@@ -23,6 +23,9 @@ public class PlayerController : MonoBehaviour
     private bool isMouseDown = false;
 
     [SerializeField]
+    private GameObject plate = null;
+
+    [SerializeField]
     private GameObject arrowPrefab = null;
 
     private GameObject arrow = null;
@@ -67,7 +70,7 @@ public class PlayerController : MonoBehaviour
             arrowPosition.z += halfLength;
 
             arrow = Instantiate(arrowPrefab, arrowPosition, arrowPrefab.transform.rotation, this.transform);
-            arrow.transform.localScale = new Vector3(0.5f, arrow.transform.localScale.y, chargeFactor);
+            arrow.transform.localScale = new Vector3(arrow.transform.localScale.x / 6.0f, arrow.transform.localScale.y / 3.0f, chargeFactor / 3.0f);
         }
 
         isAiming = true;
@@ -102,7 +105,27 @@ public class PlayerController : MonoBehaviour
             }
 
             // scale arrow
-            arrow.transform.localScale = new Vector3(arrow.transform.localScale.x, arrow.transform.localScale.y, chargeFactor);
+            arrow.transform.localScale = new Vector3(arrow.transform.localScale.x, arrow.transform.localScale.y, chargeFactor / 3.0f);
+        }
+        else
+        {
+            if ((rb.velocity.x < 0.1f) || (rb.velocity.z < 0.1f))
+                Score();
+        }
+    }
+
+    private void Score()
+    {
+        float distanceToCenter = Vector3.Distance(plate.transform.position, this.transform.position);
+
+        Debug.Log(distanceToCenter);
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.collider.CompareTag("Table"))
+        {
+            EnablePhysics();
         }
     }
 
@@ -178,8 +201,16 @@ public class PlayerController : MonoBehaviour
         Vector3 movementVec = direction.normalized * chargeFactor * speed;
         movementVec.y = 0f;
         rb.AddForce(movementVec);
-
-        Debug.Log(movementVec);
     }
 
+
+    private void EnablePhysics()
+    {
+        rb.constraints = RigidbodyConstraints.None;
+    }
+
+    public void ResetPhysics()
+    {
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+    }
 }

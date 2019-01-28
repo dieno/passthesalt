@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
         
     }
 
-
     private void SetupObjects()
     {
         playerPosition.position = playerSpawnPoint.position;
